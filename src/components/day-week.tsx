@@ -1,4 +1,3 @@
-import { CheckCircle2 } from 'lucide-react'
 import { Goal } from './goal'
 interface DayWeeekProps {
   dayWeek: string

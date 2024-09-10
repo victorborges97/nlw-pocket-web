@@ -1,4 +1,4 @@
-import { CheckCircle2, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Button } from './ui/button'
 import { DialogTrigger } from './ui/dialog'
 import { InOrbitIcon } from './in-orbit-icon'
