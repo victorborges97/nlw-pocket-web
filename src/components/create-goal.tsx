@@ -1,29 +1,57 @@
-import { X } from 'lucide-react'
+import { X } from "lucide-react";
 
-import { Button } from './ui/button'
+import { Button } from "./ui/button";
 import {
   DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from './ui/dialog'
-import { Label } from './ui/label'
-import { Input } from './ui/input'
+} from "./ui/dialog";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
 import {
   RadioGroup,
   RadioGroupIndicator,
   RadioGroupItem,
-} from './ui/radio-group'
+} from "./ui/radio-group";
+import { z } from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createGoal } from "../http/create-goal";
+import { useQueryClient } from "@tanstack/react-query";
+
+const createGoalForm = z.object({
+  title: z.string().min(1, "Informe a atividade que deseja realizar"),
+  desiredWeeklyFrequency: z.coerce.number().min(1).max(7),
+});
+
+type CreateGoalForm = z.infer<typeof createGoalForm>;
+
 export function CreateGoal() {
+  const queryClient = useQueryClient();
+
+  const { handleSubmit, register, control, formState, reset } =
+    useForm<CreateGoalForm>({
+      resolver: zodResolver(createGoalForm),
+    });
+
   const semana = [
-    { number: 1, icon: '🥱' },
-    { number: 2, icon: '🥱' },
-    { number: 3, icon: '🥱' },
-    { number: 4, icon: '🥱' },
-    { number: 5, icon: '🥱' },
-    { number: 6, icon: '🥱' },
-    { number: 7, icon: '🔥' },
-  ]
+    { number: 1, icon: "🔱" },
+    { number: 2, icon: "🌟" },
+    { number: 3, icon: "🌈" },
+    { number: 4, icon: "🌼" },
+    { number: 5, icon: "🌸" },
+    { number: 6, icon: "🌙" },
+    { number: 7, icon: "🔥" },
+  ];
+
+  async function hanldeCreateGoal(data: CreateGoalForm) {
+    await createGoal(data);
+    queryClient.invalidateQueries({ queryKey: ["summary"] });
+    queryClient.invalidateQueries({ queryKey: ["pedding-goals"] });
+
+    reset();
+  }
   return (
     <DialogContent>
       <div className="flex flex-col gap-6 h-full overflow-auto">
@@ -41,7 +69,10 @@ export function CreateGoal() {
           </DialogDescription>
         </div>
 
-        <form className="flex flex-col justify-between flex-1">
+        <form
+          onSubmit={handleSubmit(hanldeCreateGoal)}
+          className="flex flex-col justify-between flex-1"
+        >
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <Label>Qual a atividade?</Label>
@@ -49,24 +80,45 @@ export function CreateGoal() {
                 id="title"
                 autoFocus
                 placeholder="Praticar exercícios, meditar, etc..."
+                {...register("title")}
               />
+              {formState.errors?.title && (
+                <p className="text-red-400 text-sm">
+                  {formState.errors?.title.message}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
               <Label>Quantas vezes na semana?</Label>
-              <RadioGroup>
-                {semana.map(s => (
-                  <RadioGroupItem key={s.number} value={s.number.toString()}>
-                    <RadioGroupIndicator />
-                    <span className="text-zinc-300 text-sm font-medium leading-none">
-                      {s.number === 7
-                        ? 'Todos os dias da semana'
-                        : `${s.number}x na semana`}
-                    </span>
-                    <span className="text-lg leading-none">{s.icon}</span>
-                  </RadioGroupItem>
-                ))}
-              </RadioGroup>
+              <Controller
+                control={control}
+                name="desiredWeeklyFrequency"
+                defaultValue={7}
+                render={({ field }) => {
+                  return (
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      value={String(field.value)}
+                    >
+                      {semana.map((s) => (
+                        <RadioGroupItem
+                          key={s.number}
+                          value={s.number.toString()}
+                        >
+                          <RadioGroupIndicator />
+                          <span className="text-zinc-300 text-sm font-medium leading-none">
+                            {s.number === 7
+                              ? "Todos os dias da semana"
+                              : `${s.number}x na semana`}
+                          </span>
+                          <span className="text-lg leading-none">{s.icon}</span>
+                        </RadioGroupItem>
+                      ))}
+                    </RadioGroup>
+                  );
+                }}
+              />
             </div>
           </div>
 
@@ -81,5 +133,5 @@ export function CreateGoal() {
         </form>
       </div>
     </DialogContent>
-  )
+  );
 }
