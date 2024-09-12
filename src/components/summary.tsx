@@ -8,7 +8,7 @@ import { DayWeeek } from './day-week'
 import { getSummary } from '../http/get-summary'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import ptBR from 'dayjs/locale/pt-BR'
+import ptBR from 'dayjs/locale/pt-br'
 import { PendingGoals } from './pedding-goals'
 
 dayjs.locale(ptBR);
