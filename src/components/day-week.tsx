@@ -1,22 +1,32 @@
+import dayjs from 'dayjs'
 import { Goal } from './goal'
 interface DayWeeekProps {
-  dayWeek: string
+  date: string
+  goals: {
+    id: string;
+    title: string;
+    completedAt: string;
+}[]
 }
 export function DayWeeek(props: DayWeeekProps) {
-  const { dayWeek } = props
+  const { date, goals } = props
+  const weekDay = dayjs(date).format("dddd");
+  const formattedDate = dayjs(date).format("D[ de ]MMMM")
   return (
     <>
       <div className="flex flex-col gap-4">
         <h3 className="font-medium">
-          {dayWeek}{' '}
-          <span className="text-zinc-400 text-sm">(10 de Agosto)</span>
+          <span className='capitalize'>{weekDay}{' '}</span>
+          <span className="text-zinc-400 text-sm">({formattedDate})</span>
         </h3>
       </div>
 
       <ul className="flex flex-col gap-3">
-        <Goal tarefa="Acordar cedo" />
-        <Goal tarefa="Jogar bola" />
-        <Goal tarefa="Nadar" />
+        {
+          goals && goals.map((g, index) => 
+            <Goal tarefa={g} key={index}/>
+          )
+        }
       </ul>
     </>
   )
